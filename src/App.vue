@@ -187,7 +187,7 @@ export default {
       mood: "",
       date: "",
     },
-
+//comment
     entries: [],
   }),
 
