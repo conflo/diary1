@@ -1,0 +1,11 @@
+{
+    "entries": [
+        {
+          "id": 1,
+          "title": "Title1",
+          "date": "15/02/2022",
+          "content": "feeling good today",
+          "mood": "Happy"
+        }
+      ]
+}
