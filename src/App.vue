@@ -63,14 +63,9 @@
             <v-card min-height="70vh" rounded="lg" class="d-flex flex-column">
               <v-card-title>
                 {{
-                  this.entries[selectedItem].title +
-                  " index:" +
-                  this.selectedItem
+                  this.entries[selectedItem].title
                 }}
               </v-card-title>
-              <v-card-subtitle v-model="id">
-                {{ this.entries[selectedItem].id }}
-              </v-card-subtitle>
               <v-card-subtitle>
                 {{ this.entries[selectedItem].date }}
               </v-card-subtitle>
@@ -166,7 +161,7 @@
             </v-card>
           </v-dialog>
         </v-row>
-        <v-row justify="center">
+        <v-row justify="center" v-if="entries.length">
           <v-dialog
             v-model="editDialog"
             persistent
@@ -368,12 +363,9 @@ export default {
       this.title = "";
       this.content = "";
       this.mood = "";
-      // const res = await updateEntry(this.entry, id).then(() => {
-      //   this.entries[this.selectedItem].title = this.entry.title;
-      //   this.entries[this.selectedItem].content = this.entry.content;
-      //   this.entries[this.selectedItem].mood = this.entry.mood;
-      //   this.entries[this.selectedItem].date = this.entry.date;
-      // });
+      
+      this.selectedItem = index;
+      this.id = this.entries[this.selectedItem].id;
 
     },
 
