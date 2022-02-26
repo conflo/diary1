@@ -43,7 +43,8 @@ const config =
       }
 
       export const deleteEntry = id => {
-        return deleteDoc(doc(db, 'entries', id));
+        const res = deleteDoc(doc(db, 'entries', id));
+        return res;
       }
 
       export const userLoadEntries = () => {

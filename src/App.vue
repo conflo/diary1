@@ -24,8 +24,8 @@
             <v-sheet elevation="2" rounded="lg">
               <v-list color="transparent" dense>
                 <v-subheader>ENTRIES</v-subheader>
-                <v-list-item-group 
-                  v-model="selectedItem" 
+                <v-list-item-group
+                  v-model="selectedItem"
                   color="primary"
                   mandatory
                 >
@@ -38,6 +38,9 @@
                       <v-list-item-title>
                         Entry #{{ index + 1 }}
                       </v-list-item-title>
+                      <v-list-item-subtitle>
+                        {{ entry.title }}
+                      </v-list-item-subtitle>
                       <v-list-item-subtitle>
                         {{ entry.date }}
                       </v-list-item-subtitle>
@@ -59,10 +62,14 @@
           <v-col v-if="entries.length">
             <v-card min-height="70vh" rounded="lg" class="d-flex flex-column">
               <v-card-title>
-                {{ this.entries[selectedItem].title + " index:" + this.selectedItem}}
+                {{
+                  this.entries[selectedItem].title +
+                  " index:" +
+                  this.selectedItem
+                }}
               </v-card-title>
               <v-card-subtitle v-model="id">
-                {{this.entries[selectedItem].id}}
+                {{ this.entries[selectedItem].id }}
               </v-card-subtitle>
               <v-card-subtitle>
                 {{ this.entries[selectedItem].date }}
@@ -71,14 +78,25 @@
                 {{ this.entries[selectedItem].content }}
               </v-card-text>
               <v-spacer></v-spacer>
-                <v-btn @click="delEntry()" class="mx-2 mb-2" fab dark small color="red">
-                  <v-icon dark> mdi-delete </v-icon>
-                </v-btn>
+              <v-btn
+                @click="delEntry()"
+                class="mx-2 mb-2"
+                fab
+                dark
+                small
+                color="red"
+              >
+                <v-icon dark> mdi-delete </v-icon>
+              </v-btn>
             </v-card>
           </v-col>
         </v-row>
         <v-row justify="center">
-          <v-dialog v-model="dialog" persistent max-width="600px">
+          <v-dialog
+            v-model="dialog"
+            persistent
+            max-width="600px"
+          >
             <v-card>
               <v-card-title>
                 <span class="text-h5">New Diary Entry</span>
@@ -131,11 +149,7 @@
                 <v-btn color="blue darken-1" text @click="dialog = false">
                   Close
                 </v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="(dialog = false), addDiaryEntry()"
-                >
+                <v-btn color="blue darken-1" text @click="addDiaryEntry()">
                   Save
                 </v-btn>
               </v-card-actions>
@@ -162,7 +176,7 @@ export default {
     this.date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
       .substr(0, 10);
-      this.getDiaryEntries();
+    this.getDiaryEntries();
   },
 
   data: () => ({
@@ -187,7 +201,7 @@ export default {
       mood: "",
       date: "",
     },
-//comment
+    //comment
     entries: [],
   }),
 
@@ -198,14 +212,31 @@ export default {
 
     entryClicked: function (index) {
       this.id = this.entries[index].id;
-      console.log(this.id)
+      console.log(
+        "entry's id" +
+          this.id +
+          " entry's index" +
+          index +
+          " array size" +
+          this.entries.length
+      );
+      this.selectedItem = index;
+      console.log(this.selectedItem);
     },
-    
+
     delEntry: async function () {
-      this.entries.splice(this.selectedItem, 1);
-      await deleteEntry(this.id);
+      const deleteID = this.id;
+      console.log(deleteID + " is to be deleted");
+      if (this.selectedItem == this.entries.length - 1) {
+        this.selectedItem = this.entries.length - 2;
+      }
+      const res = await deleteEntry(deleteID).then(() => {
+        this.entries = this.entries.filter((entry) => entry.id != deleteID);
+      });
+      console.log(res);
       console.log("deleting" + this.id);
-      this.selectedItem = 0;
+      this.id = this.entries[this.selectedItem].id;
+      console.log(this.id + " now selected");
     },
 
     /* saveEntry: function () {
@@ -238,10 +269,11 @@ export default {
         //console.log(this.entry)
       });
       this.id = this.entries[this.selectedItem].id;
-      console.log(this.id)
+      console.log(this.id);
     },
 
     addDiaryEntry: async function () {
+      this.dialog = false;
       this.id = Date.now().toString();
       this.entry = {
         id: this.id,
@@ -250,12 +282,16 @@ export default {
         mood: this.mood,
         date: this.date,
       };
-      await createEntry(this.entry, this.id);
-      this.entries.push(this.entry);
+      const res = await createEntry(this.entry, this.id).then(() => {
+        this.entries.push(this.entry);
+      });
       this.id = "";
       this.title = "";
       this.content = "";
       this.mood = "";
+
+      this.selectedItem = this.entries.length - 1;
+      this.id = this.entries[this.selectedItem].id;
     },
   },
 };
