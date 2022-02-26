@@ -34,7 +34,7 @@ const config =
       }
 
       export const updateEntry = (id, entry) => {
-        return entriesCollection.doc(id).update(entry)
+        return setDoc(doc(db, "entries", id), entry);
       }
 
       export const getEntries = () => {

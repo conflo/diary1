@@ -88,6 +88,16 @@
               >
                 <v-icon dark> mdi-delete </v-icon>
               </v-btn>
+              <v-btn
+                @click="editDialog = true"
+                class="mx-2 mb-2"
+                fab
+                dark
+                small
+                color="blue"
+              >
+                <v-icon dark> mdi-pen </v-icon>
+              </v-btn>
             </v-card>
           </v-col>
         </v-row>
@@ -156,6 +166,72 @@
             </v-card>
           </v-dialog>
         </v-row>
+        <v-row justify="center">
+          <v-dialog
+            v-model="editDialog"
+            persistent
+            max-width="600px"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Edit Diary Entry</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="entries[selectedItem].title"
+                        label="Title"
+                      >
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-textarea
+                        v-model="entries[selectedItem].content"
+                        name="entry"
+                        filled
+                        label="Content"
+                        auto-grow
+                        value=""
+                      ></v-textarea>
+                    </v-col>
+
+                    <v-col cols="12" sm="6">
+                      <v-autocomplete
+                        v-model="entries[selectedItem].mood"
+                        :items="[
+                          'Happy',
+                          'Sad',
+                          'Angry',
+                          'Worried',
+                          'Excited',
+                          'Bored',
+                          'Scared',
+                          'Tired',
+                          'Sleepy',
+                          'Confused',
+                        ]"
+                        label="Mood"
+                        multiple
+                      ></v-autocomplete>
+                    </v-col>
+                  </v-row>
+                </v-container>
+                <small>*indicates required field</small>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="editDialog = false">
+                  Close
+                </v-btn>
+                <v-btn color="blue darken-1" text @click="editDiaryEntry(selectedItem, entries[selectedItem].id)">
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-row>
         <v-btn class="mx-2" fab dark large color="green" @click="dialog = true">
           <v-icon dark> mdi-plus </v-icon>
         </v-btn>
@@ -165,7 +241,7 @@
 </template>
 
 <script>
-import { deleteEntry, createEntry, getEntries } from "../firebase";
+import { deleteEntry, createEntry, getEntries, updateEntry } from "../firebase";
 
 export default {
   name: "App",
@@ -189,6 +265,7 @@ export default {
     date: null,
 
     dialog: false,
+    editDialog: false,
 
     selectedItem: 0,
 
@@ -209,6 +286,8 @@ export default {
     logDate: function () {
       console.log(this.date);
     },
+
+    
 
     entryClicked: function (index) {
       this.id = this.entries[index].id;
@@ -270,6 +349,32 @@ export default {
       });
       this.id = this.entries[this.selectedItem].id;
       console.log(this.id);
+    },
+
+    editDiaryEntry: async function(index, id) {
+      this.editDialog = false;
+      console.log("editing diary entry " + id);
+      this.entry = {
+        id: id,
+        title: this.entries[this.selectedItem].title,
+        content: this.entries[this.selectedItem].content,
+        mood: this.entries[this.selectedItem].mood,
+        date: this.date,
+      };
+      const res = await updateEntry(id, this.entry).then(() => {
+        this.entries[index] = this.entry;
+      });
+      this.id = "";
+      this.title = "";
+      this.content = "";
+      this.mood = "";
+      // const res = await updateEntry(this.entry, id).then(() => {
+      //   this.entries[this.selectedItem].title = this.entry.title;
+      //   this.entries[this.selectedItem].content = this.entry.content;
+      //   this.entries[this.selectedItem].mood = this.entry.mood;
+      //   this.entries[this.selectedItem].date = this.entry.date;
+      // });
+
     },
 
     addDiaryEntry: async function () {
